@@ -6,20 +6,20 @@
 #
 
 # ==============================================
-# ========== Machine settings ==================
+# ========== 机器设置 ==================
 # ==============================================
 
-# Enable GPU compute?
+# 是否启用 GPU 计算
 useGPU = False
 
-# Which GPU to use (set to 0 if only one GPU)
+#使用哪个 GPU（如果只有一个 GPU，则设置为 0）
 gpu_num = 0
 
-# Number of runs with identical settings, but different random seeds (if applicable)
+# 具有相同设置但不同随机种子的运行次数（如果适用）
 Nruns = 1
 
 # ==============================================
-# ======= Dataset and model settings ===========
+# ======= 数据集和模型设置 ===========
 # ==============================================
 
 # task = "imagenet"
@@ -27,7 +27,7 @@ Nruns = 1
 # task = "cifar10"
 task = "mnist"
 
-# Choose neural network model based on task
+# 根据任务选择神经网络模型
 if task == "imagenet":
     # model_name = "Resnet50"
     model_name = "Resnet50-v1.5"
@@ -52,20 +52,20 @@ elif task == "mnist":
     model_name = "CNN6"
     # model_name = "CNN6_v2"
 
-# Dataset truncation
+# 数据集截断
 ntest = 1000 # number of images in inference simlation
 ntest_batch = 1000 # how many images to load at a time in one contiguous block (for ImageNet, should be <=5000)
 nstart = 0 # index of starting image
 
-# Random sampling: 
-# If True, ntest images will be chosen randomly from the full dataset
-# If False, images will be loaded in the order that they are stored
+# 随机抽样： 
+# 如果为 True，则将从完整数据集中随机选择 ntest 图像
+# 如果为 False，图像将按照存储顺序加载
 randomSampling = False
 
-# Console outputsTrue
-# top-k accuracy to recordFalse
-# count_interval: cumulative accuracy printed after every N images (N = count_interval)
-# time_interval: print the time elapsed between the processing of N images
+# 控制台输出True
+# recordFalse 的 top-k 准确度
+# count_interval: 每 N 张图像后打印的累积精度 (N = count_interval)
+# time_interval：打印处理N张图像之间经过的时间
 if task == "imagenet":
     count_interval = 1
     topk = (1,5)
@@ -77,133 +77,133 @@ elif task == "mnist":
     topk = 1
 time_interval = True
 
-# Show the Keras model summary
+# 显示 Keras 模型摘要
 show_model_summary = False
 
 # ==============================================
-# ========= Crossbar configuration =============
+# ========= Crossbar 配置 =============
 # ==============================================
 
-# Resolution of the weight values
+# 权值的分辨率
 weight_bits = 8
 
-# Percentile of weight distribution in each layer that will correspond to maximum device conductance
-# In general, weight_percentile = 100 is highly recommended
+# 每层中与最大器件电导相对应的权重分布的百分位数
+# 一般来说，强烈建议weight_percentile = 100
 weight_percentile = 100
 
-# Number of bit slices
+# 位片数量
 Nslices = 1
 
-# Max number of rows
+# 最大行数
 NrowsMax = 1152
 
-# Simulate input bitslicing
+# 模拟输入位切片
 input_bitslicing = False
 
-# Negative number handling (BALANCED or OFFSET)
+# 负数处理（BALANCED 或 OFFSET）
 style = "BALANCED"
 # style = "OFFSET"
 
-# Special option for "BALANCED" *and* Nslices = 1, otherwise ignored
-# one_sided: zero value maps both devices to lowest state (recommended)
-# two_sided: zero value maps both devices to center state
+# “BALANCED”的特殊选项*和* Nslices = 1，否则被忽略
+# one_side：零值将两个设备映射到最低状态（推荐）
+#two_side：零值将两个设备映射到中心状态
 balanced_style = "one_sided"
 
-# Special option for "OFFSET", otherwise ignored
-# Whether offset is computed digitally (True) or using an analog zero-point column (False) 
+# “OFFSET”的特殊选项，否则被忽略
+# 偏移量是否以数字方式计算（True）或使用模拟零点列（False）
 digital_offset = False
 
-# Array unit cell parasitic resistance
+# 阵列单元寄生电阻
 Rp = 0
 
-# Whether parasitic voltage drops along a row should be set to zero
+# 沿行的寄生电压降是否应设置为零
 noRowParasitics = True
 
-# Interleave positive and negative cells in one column; ignore if OFFSET
+# 将阳性细胞和阴性细胞交错在一列中；忽略 if OFFSET
 interleaved_posneg = False
 
-# Clip the current at the bottom of a column to the range (-Icol_max,+Icol_max)
-# Applied on each input bit if input_bitslicing is True
-# Applied prior to current subtraction if BALANCED, unless interleaved
+# 将列底部的电流剪辑到范围 (-Icol_max,+Icol_max)
+# 如果 input_bitslicing 为 True，则应用于每个输入位
+# 如果是平衡的，则在当前减法之前应用，除非交错
 Icol_max = 0
-Icell_max = 3.2e-6 # Max possible cell current; used only if Icol_max > 0
+Icell_max = 3.2e-6 # 最大可能的电池电流；仅当 Icol_max > 0 时使用
 
-# Fold batchnorm into conv/dense
+# 将batchnorm折叠成conv/dense
 fold_batchnorm = True
 
-# Implement bias digitally vs in array
+# 以数字方式与阵列方式实现偏置
 digital_bias = True
 
-# Bias weight resolution
-# 0: no quantization
-# adc: track ADC if ADC is on, no quantization otherwise
+# 偏差权重分辨率
+# 0：无量化
+# adc：如果 ADC 打开，则跟踪 ADC，否则不进行量化
 bias_bits = 0
 # bias_bits = "adc"
 
 # ==============================================
-# ========= Weight non-idealities ==============
+# ========= 权重非理想值 ==============
 # ==============================================
 
-# Cell condcutance On/off ratio: 0 means infinity
+# 电池电导开/关比：0表示无穷大
 On_off_ratio = 1000
 
 ###############
 #
-#   To use a custom rather than generic device error model, please implement
-#   a method in one of the files in the directory:
-#   /cross_sim/cross_sim/xbar_simulator/parameters/custom_device/
-#   -- Programming errors:         weight_error_device_custom.py
-#   -- Cycle-to-cycle read noise:  weight_readnoise_device_custom.py
-#   -- Conductance drift:          weight_drift_device_custom.py
-#   For more details, see Chapter 7 of the Inference manual.
+#   要使用自定义而不是通用设备错误模型，请实施
+# 目录中的一个文件中的方法：
+#/cross_sim/cross_sim/xbar_simulator/参数/custom_device/
+# -- 编程错误：weight_error_device_custom.py
+# -- 周期间读取噪声：weight_readnoise_device_custom.py
+# -- 电导漂移：weight_drift_device_custom.py
+# 有关更多详细信息，请参阅推理手册第 7 章。
 
-### Programming error
-# error_model can be (str): "none", "alpha" (generic), or custom device model
-#   Available device models are: "SONOS", "PCM_Joshi", "RRAM_Milo"
-#   Define in weight_error_device_custom.py
+### 编程错误
+# error_model 可以是 (str): "none"、"alpha"（通用）或自定义设备模型
+# 可用的设备型号有：“SONOS”、“PCM_Joshi”、“RRAM_Milo”
+# 在weight_error_device_custom.py中定义
 error_model = "alpha"
-alpha_error = 0.00 # used only if error_model is alpha
-proportional_error = False # used only if error_model is alpha
+alpha_error = 0.00 # 仅当 error_model 为 alpha 时使用
+proportional_error = False # 仅当 error_model 为 alpha 时使用
 
-### Read noise
-# noise_model can be (str): "none", "alpha" (generic), or custom device model
-#   Available device models are: "parabolic" (hypothetical) 
-#   Define in weight_readnoise_device_custom.py
+### 读取噪声
+# Noise_model 可以是 (str): "none"、"alpha"（通用）或自定义设备模型
+# 可用的设备模型有：“抛物线”（假设）
+# 在weight_readnoise_device_custom.py中定义
 noise_model = "alpha"
-alpha_noise = 0.00 # used only if noise_model is alpha
-proportional_noise = False # used only if noise_model is alpha
+alpha_noise = 0.00 # 仅当 noise_model 为 alpha 时使用
+proportional_noise = False # 仅当 noise_model 为 alpha 时使用
 
-### Conductance drift
-# Drift model is disabled if t_drift = 0
-# drift_model can be (str): "none", or custom device model
-#   Available device models are: "SONOS_interpolate", "PCM_Joshi"
-#   Define in weight_drift_device_custom.py
-t_drift = 0 # time after programming (days)
+### 电导漂移
+# 如果 t_drift = 0，则禁用漂移模型
+#drift_model 可以是 (str): "none", 或自定义设备模型
+# 可用的设备模型有：“SONOS_interpolate”、“PCM_Joshi”
+# 在weight_drift_device_custom.py中定义
+t_drift = 0 # 编程后的时间（天）
 drift_model = 'none'
 
 # ==============================================
-# ===== ADC and activation (DAC) settings ======
+# ===== ADC 和激活 (DAC) 设置 ======
 # ==============================================
 
-# Resolution: 0 means no quantization
+# 分辨率：0表示不量化
 # adc_bits = 8
 # dac_bits = 8
 adc_bits = 0
 dac_bits = 0
 
-# Digitization after every input bit (ignored if input_bit_slicing is False)
-# Recommended settings: BALANCED -> ADC_per_ibit = False
-#                       OFFSET ->   ADC_per_ibit = True
+# 每个输入位后进行数字化（如果 input_bit_slicing 为 False，则忽略）
+# 推荐设置：BALANCED -> ADC_per_ibit = False
+# OFFSET -> ADC_per_ibit = True
 ADC_per_ibit = (False if style == "BALANCED" else True)
 
-# ADC range option
-#   calibrated: use saved ADC ranges for every layer
-#       For non-bitsliced, this gives the minimum and maximum ADC level, whether ADC is applied after each input bit or not
-#       For bit sliced, this gives the values of N_i (integer), where the extreme ADC level is MAX / 2^N_i for the i^th slice
-#   max: set ADC ranges to maximum possible for each layer
-#   granular: set ADC range according to # bits and a fixed level separation corresponding to the FPG (ADC_per_ibit must be True)
+# ADC 范围选项
+# 校准：为每一层使用保存的 ADC 范围
+# 对于非位切片，这给出了最小和最大 ADC 级别，无论 ADC 是否在每个输入位之后应用
+# 对于位切片，这给出了 N_i（整数）的值，其中第 i^th 切片的极限 ADC 级别为 MAX / 2^N_i
+# max: 将每层的 ADC 范围设置为最大可能值
+#粒度：根据#位设置ADC范围以及与FPG对应的固定电平间隔（ADC_per_ibit必须为True）
 adc_range_option = "calibrated"
 
-# Percentile option to select a calibrated range, if using bit slicing (otherwise ignored)
-# Typical values are 99.9, 99.95, 99.99, 99.995, and 99.999
+# 如果使用位切片，则用于选择校准范围的百分位数选项（否则将被忽略）
+# 典型值为 99.9、99.95、99.99、99.995 和 99.999
 pct = 99.995
