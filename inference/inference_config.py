@@ -62,8 +62,8 @@ nstart = 0 # index of starting image
 # If False, images will be loaded in the order that they are stored
 randomSampling = False
 
-# Console outputs
-# top-k accuracy to record
+# Console outputsTrue
+# top-k accuracy to recordFalse
 # count_interval: cumulative accuracy printed after every N images (N = count_interval)
 # time_interval: print the time elapsed between the processing of N images
 if task == "imagenet":
