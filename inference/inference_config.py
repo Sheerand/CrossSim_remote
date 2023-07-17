@@ -157,12 +157,12 @@ On_off_ratio = 1000
 # -- 电导漂移：weight_drift_device_custom.py
 # 有关更多详细信息，请参阅推理手册第 7 章。
 
-### 编程错误
+### 编程误差
 # error_model 可以是 (str): "none"、"alpha"（通用）或自定义设备模型
 # 可用的设备型号有：“SONOS”、“PCM_Joshi”、“RRAM_Milo”
 # 在weight_error_device_custom.py中定义
 error_model = "alpha"
-alpha_error = 0.00 # 仅当 error_model 为 alpha 时使用
+alpha_error = 0.01 # 仅当 error_model 为 alpha 时使用
 proportional_error = False # 仅当 error_model 为 alpha 时使用
 
 ### 读取噪声
@@ -170,7 +170,7 @@ proportional_error = False # 仅当 error_model 为 alpha 时使用
 # 可用的设备模型有：“抛物线”（假设）
 # 在weight_readnoise_device_custom.py中定义
 noise_model = "alpha"
-alpha_noise = 0.00 # 仅当 noise_model 为 alpha 时使用
+alpha_noise = 0.01 # 仅当 noise_model 为 alpha 时使用
 proportional_noise = False # 仅当 noise_model 为 alpha 时使用
 
 ### 电导漂移
@@ -178,7 +178,7 @@ proportional_noise = False # 仅当 noise_model 为 alpha 时使用
 #drift_model 可以是 (str): "none", 或自定义设备模型
 # 可用的设备模型有：“SONOS_interpolate”、“PCM_Joshi”
 # 在weight_drift_device_custom.py中定义
-t_drift = 0 # 编程后的时间（天）
+t_drift = 1 # 编程后的时间（天）
 drift_model = 'none'
 
 # ==============================================
@@ -186,10 +186,10 @@ drift_model = 'none'
 # ==============================================
 
 # 分辨率：0表示不量化
-# adc_bits = 8
-# dac_bits = 8
-adc_bits = 0
-dac_bits = 0
+adc_bits = 8
+dac_bits = 8
+# adc_bits = 0
+# dac_bits = 0
 
 # 每个输入位后进行数字化（如果 input_bit_slicing 为 False，则忽略）
 # 推荐设置：BALANCED -> ADC_per_ibit = False

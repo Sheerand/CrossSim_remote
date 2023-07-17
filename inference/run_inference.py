@@ -9,30 +9,32 @@ import numpy as np
 import os, pickle
 os.environ['TF_CPP_MIN_LOG_LEVEL']="3"
 
+
 from inference_util.inference_net import set_params, inference
 from inference_util.keras_parser import get_keras_metadata
 from inference_util.CNN_setup import augment_parameters, build_keras_model, model_specific_parameters, \
     get_xy_parallel, get_xy_parallel_parasitics, load_adc_activation_ranges
 from inference_util.print_configuration_message import print_configuration_message
+import helpers.plot_tools as PT
 
 # ==========================
-# ==== Load config file ====
+# ==== 加载配置文件 ====
 # ==========================
 
 import inference_config as config
 
 # ===================
-# ==== GPU setup ====
+# ==== GPU设置 ====
 # ===================
 
-# Restrict tensorflow GPU memory usage
+#限制TensorFlow GPU内存使用
 os.environ["CUDA_VISIBLE_DEVICES"]=str(-1)
 import tensorflow as tf
 gpu_devices = tf.config.experimental.list_physical_devices('GPU')
 for k in range(len(gpu_devices)):
     tf.config.experimental.set_memory_growth(gpu_devices[k], True)
 
-# Set up GPU
+# 设置 GPU
 if config.useGPU:
     import cupy
     os.environ["CUDA_VISIBLE_DEVICES"]=str(config.gpu_num)
@@ -40,43 +42,43 @@ if config.useGPU:
     cupy.cuda.Device(0).use()
 
 # =====================================
-# ==== Import neural network model ====
+# ==== 导入神经网络模型 ====
 # =====================================
 
-# Build Keras model and prepare CrossSim-compatible topology metadata
+# 构建 Keras 模型并准备与 CrossSim 兼容的拓扑元数据
 keras_model = build_keras_model(config.model_name,show_model_summary=config.show_model_summary)
 layerParams, sizes = get_keras_metadata(keras_model,task=config.task,debug_graph=False)
 
-# Count the total number of layers and number of MVM layers
+# 统计总层数和MVM层数
 Nlayers = len(layerParams)
 config.Nlayers_mvm = np.sum([(layerParams[j]['type'] in ('conv','dense')) for j in range(Nlayers)])
 
 # ===================================================================
-# ======= Parameter validation and model-specific parameters ========
+# ======= 参数验证和模型特定参数 ========
 # ===================================================================
-# General parameter check
+# 一般参数检查
 config = augment_parameters(config)
-# Parameters specific to some neural networks
+# 某些神经网络特有的参数
 config, positiveInputsOnly = model_specific_parameters(config)
 
 # =========================================================
-# ==== Load calibrated ranges for ADCs and activations ====
+# ==== 加载 ADC 和激活的校准范围 ====
 # =========================================================
 
 adc_ranges, dac_ranges = load_adc_activation_ranges(config)
 
 # =======================================
-# ======= GPU performance tuning ========
+# ======= GPU性能调优 ========
 # =======================================
 
-# Convolutions: number of sliding windows along x and y to compute in parallel
+# 卷积：沿 x 和 y 并行计算的滑动窗口数量
 xy_pars = get_xy_parallel(config)
 
 # ================================
-# ========= Start sweep ==========
+# ========= 开始扫描 ==========
 # ================================
 
-# Display the chosen simulation settings
+# 显示所选的模拟设置
 print_configuration_message(config)
 
 for q in range(config.Nruns):
@@ -88,37 +90,37 @@ for q in range(config.Nruns):
         print('===========')
 
     paramsList, layerParamsCopy = Nlayers*[None], Nlayers*[None]
-    j_mvm, j_conv = 0, 0 # counter for MVM and conv layers
+    j_mvm, j_conv = 0, 0 # MVM 和 conv 层的计数器
 
     # ===================================================
-    # ==== Compute and set layer-specific parameters ====
+    # ==== 计算并设置特定于层的参数 ====
     # ===================================================
 
     for j in range(Nlayers):
 
-        # For a layer that must be split across multiple arrays, create multiple params objects
+        # 对于必须拆分为多个数组的图层，创建多个 params 对象
         if layerParams[j]['type'] in ('conv','dense'):
 
-            # Number of total rows used in MVM
+            # MVM 中使用的总行数
             if layerParams[j]['type'] == 'conv':
                 Nrows = layerParams[j]['Kx']*layerParams[j]['Ky']*layerParams[j]['Nic']
             elif layerParams[j]['type'] == 'dense':
                 Nrows = sizes[j][2]
 
-            # Compute number of arrays matrix must be partitioned across
+            #计算数组矩阵的数量必须划分
             if config.NrowsMax > 0:
                 Ncores = (Nrows-1)//config.NrowsMax + 1
             else:
                 Ncores = 1
 
-            # Layer specific ADC and activation resolution and range (set above)
+            # 特定于层的 ADC 以及激活分辨率和范围（上面设置）
             adc_range = adc_ranges[j_mvm]
             dac_range = dac_ranges[j_mvm]
             adc_bits_j = config.adc_bits_vec[j_mvm]
             dac_bits_j = config.dac_bits_vec[j_mvm]
-            Rp_j = config.Rp # in principle, each layer can have a different parasitic resistance value
+            Rp_j = config.Rp # 原则上，每层可以有不同的寄生电阻值
 
-            # If parasitics are enabled, x_par and y_par are modified to optimize cumulative sum runtime
+            # 如果启用寄生效应，则修改 x_par 和 y_par 以优化累积和运行时间
             if Rp_j > 0 and layerParams[j]['type'] == 'conv':
                 xy_pars[j_conv,:] = get_xy_parallel_parasitics(Nrows,sizes[j][0],sizes[j+1][0],config.model_name)
 
@@ -176,10 +178,10 @@ for q in range(config.Nruns):
             if layerParams[j]['type'] == 'conv':
                 j_conv += 1
 
-         # Need to make a copy to prevent inference() from modifying layerParams
+         # 需要复制一份以防止inference()修改layerParams
         layerParamsCopy[j] = layerParams[j].copy()
 
-    # Run inference
+    # 运行推理
     accuracy = inference(ntest=config.ntest,
         dataset=config.task,
         paramsList=paramsList,
@@ -205,3 +207,5 @@ for q in range(config.Nruns):
         adc_range_option=config.adc_range_option,
         larq=config.larq,
         whetstone=config.whetstone)
+    
+p = PT.Plot()
