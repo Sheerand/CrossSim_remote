@@ -13,8 +13,8 @@ sys.path.append("..")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 """
-This function imports the neural network layers metadata from Keras
-The weights themselves are imported later, in BackProp
+该函数从 Keras 导入神经网络层元数据
+权重本身稍后在 BackProp 中导入
 """    
 def get_keras_metadata(model,debug_graph=False,task="imagenet"):
     print('Reading Keras model metadata...')
@@ -22,12 +22,12 @@ def get_keras_metadata(model,debug_graph=False,task="imagenet"):
 
     ignoredLayerTypes = ["Dropout","GaussianNoise"]
 
-    # The main layer types are: Conv, Dense, Pool, Add, Quantize, Concat, and Scale
-    #   Each layer can have an associated activation layer: 'activation' (dict, 'name')
-    #   Each layer can have an associated batch normalization layer: 'batch_norm'
-    #       Currently not supporting batch norm layers that are not associated with any single Conv or Dense layer
-    #   Any additional appended layer is part of 'appended'
-    #       These include: GaussianNoise, ZeroPadding2D, and Round, which are seldom used
+   # 主要层类型有：Conv、Dense、Pool、Add、Quantize、Concat 和 Scale
+    # 每层可以有一个关联的激活层： 'activation' (dict, 'name')
+    # 每个层都可以有一个关联的批量归一化层：'batch_norm'
+    # 目前不支持与任何单个 Conv 或 Dense 层不关联的批量归一化层
+    # 任何附加的附加层都是“附加”的一部分
+    # 其中包括：GaussianNoise、ZeroPadding2D和Round，这些很少使用
     layerParams = []
 
     def isActivation(class_name):
@@ -37,7 +37,7 @@ def get_keras_metadata(model,debug_graph=False,task="imagenet"):
         return class_name in ('Conv2D', 'DepthwiseConv2D', 'QuantConv2D','MaxPooling2D','AveragePooling2D',\
             'GlobalAveragePooling2D','GlobalMaxPooling2D','Dense','QuantDense','Add','Concatenate','Quantize','Scale')
 
-    # Search the network for the index of a named main layer or the main layer associated with a named supporting layer
+    # 在网络中搜索命名主层或与命名支持层关联的主层的索引
     def searchForLayer(layerName,layerParams):
         for j in range(len(layerParams)):
             if (layerParams[j]['name'] == layerName) \
@@ -46,13 +46,13 @@ def get_keras_metadata(model,debug_graph=False,task="imagenet"):
                 return j
         raise ValueError("Source layer could not be found")
 
-    # Iterate through the layers of the network
+    # 迭代网络各层
     for k in range(len(config)):
         class_name = config[k]['class_name']
         config_k = config[k]['config']
 
-        # Input layer of network: specifies input dimensions of the first layer
-        # Not always specified in a Keras CNN model; in that case use the dataset image size as a guess
+        # 网络输入层：指定第一层的输入维度
+        # Keras CNN 模型中并不总是指定；在这种情况下，使用数据集图像大小作为猜测
         if class_name == 'InputLayer':
             Nix0 = config_k['batch_input_shape'][1]
             if len(config_k['batch_input_shape']) == 4: # 3D input
@@ -71,20 +71,20 @@ def get_keras_metadata(model,debug_graph=False,task="imagenet"):
                     else:
                         raise ValueError("Image size not specified and dataset unknown")
 
-        # Zero padding layer is detected, but its parameters are loaded upon parsing subsequent Conv layer
+        # 检测到零填充层，但在解析后续 Conv 层时加载其参数
         elif class_name == 'ZeroPadding2D':
             if len(layerParams) > 0:
                 input1 = config[k]['inbound_nodes'][0][0][0]
                 k_src = searchForLayer(input1,layerParams)
                 layerParams[k_src]['appended'] = config_k['name']
 
-        # Check if layer is a main layer type
+        # 检查图层是否为主图层类型
         elif isMainLayerType(class_name):
 
             layerParams_k = {}
             layerParams_k['name'] = config_k['name']
             
-            # Default settings: may change below
+            # 默认设置：下面可能会更改
             layerParams_k['batch_norm'] = None
             layerParams_k['appended'] = None
             layerParams_k['bias'] = False
@@ -92,19 +92,19 @@ def get_keras_metadata(model,debug_graph=False,task="imagenet"):
             layerParams_k['splitBeforeBN'] = False
 
             ###################
-            ##  CONVOLUTION  ##
+            ## 卷积  ##
             ###################
             if class_name in ('Conv2D', 'DepthwiseConv2D', 'QuantConv2D'):
 
                 layerParams_k['type'] = 'conv'
                 layerParams_k['bias'] = config_k['use_bias']
-                layerParams_k['stride'] = config_k['strides'][0] # separate stride in y not yet supported
+                layerParams_k['stride'] = config_k['strides'][0] # 尚未支持 y 中的单独步幅
                 layerParams_k['Kx'] = config_k['kernel_size'][0]
                 layerParams_k['Ky'] = config_k['kernel_size'][1]
-                layerParams_k['binarizeWeights'] = False # used only for Larq, changed below if detected
+                layerParams_k['binarizeWeights'] = False #仅用于 Larq，如果检测到则更改如下
 
-                # Zero padding
-                # Default to zero padding: if same convolution, compute these later in post_set
+                # 零填充
+                # 默认为零填充：如果相同的卷积，稍后在 post_set 中计算这些
                 layerParams_k['px_0'], layerParams_k['px_1'] = 0, 0
                 layerParams_k['py_0'], layerParams_k['py_1'] = 0, 0
                 if config_k['padding'] == 'same':

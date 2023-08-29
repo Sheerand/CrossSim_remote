@@ -15,6 +15,7 @@ from inference_util.keras_parser import get_keras_metadata
 from inference_util.CNN_setup import augment_parameters, build_keras_model, model_specific_parameters, \
     get_xy_parallel, get_xy_parallel_parasitics, load_adc_activation_ranges
 from inference_util.print_configuration_message import print_configuration_message
+
 import helpers.plot_tools as PT
 
 # ==========================
@@ -73,6 +74,7 @@ adc_ranges, dac_ranges = load_adc_activation_ranges(config)
 
 # 卷积：沿 x 和 y 并行计算的滑动窗口数量
 xy_pars = get_xy_parallel(config)
+# print(xy_pars)
 
 # ================================
 # ========= 开始扫描 ==========
@@ -89,7 +91,7 @@ for q in range(config.Nruns):
         print(" Run "+str(q+1)+"/"+str(config.Nruns))
         print('===========')
 
-    paramsList, layerParamsCopy = Nlayers*[None], Nlayers*[None]
+    paramsList, layerParamsCopy = Nlayers*[None], Nlayers*[None]#初始化长度为Nlayers的列表
     j_mvm, j_conv = 0, 0 # MVM 和 conv 层的计数器
 
     # ===================================================

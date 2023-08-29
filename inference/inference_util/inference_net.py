@@ -15,10 +15,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def set_params(**kwargs):
     """
-    Pass parameters using kwargs to allow for a general parameter dict to be used
-    This function should be called before train and sets all parameters of the neural core simulator
+    使用 kwargs 传递参数以允许使用通用参数字典
+    该函数应在训练之前调用并设置神经核心模拟器的所有参数
 
-    :return: params, a parameter object with all the settings
+    :return: params，包含所有设置的参数对象
 
     """
     #######################
@@ -337,8 +337,8 @@ def set_params(**kwargs):
 
 def inference(ntest,dataset,paramsList,sizes,keras_model,layerParams,**kwargs):
     """
-    Runs inference on a full neural network whose weights are passed in as a Keras model and whose topology is specified by layerParams
-    Parameters for individual neural cores generated using set_params() are passed in as paramsList
+    在完整的神经网络上运行推理，其权重作为 Keras 模型传入，其拓扑由 layerParams 指定
+    使用 set_params() 生成的各个神经核心的参数作为 paramsList 传入
     """
     ########## load values from dict
     seed = random.randrange(1,1000000)
@@ -536,7 +536,7 @@ def inference(ntest,dataset,paramsList,sizes,keras_model,layerParams,**kwargs):
     bp.read_weights_keras(weight_dict,layerParams,fold_batchnorm=fold_batchnorm)
     bp.expand_cores()
 
-    # Import bias weights to be added digitally
+    # 导入要以数字方式添加的偏置权重
     if digital_bias:
         bp.import_digital_bias(weight_dict,bias_bits,layerParams)
 
@@ -636,7 +636,7 @@ def inference(ntest,dataset,paramsList,sizes,keras_model,layerParams,**kwargs):
                 bp.indata = np.transpose(bp.indata,(0,3,1,2))
         bp.ndata = (ntest_batch if not randomSampling else x_test.shape[0])
 
-        # If the first layer is using GPU, send the inputs to the GPU
+        # 如果第一层使用 GPU，则将输入发送到 GPU
         if useGPU:
             import cupy as cp
             cp.cuda.Device(gpu_id).use()

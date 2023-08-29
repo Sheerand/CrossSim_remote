@@ -12,7 +12,7 @@
 # 是否启用 GPU 计算
 useGPU = False
 
-#使用哪个 GPU（如果只有一个 GPU，则设置为 0）
+#使用哪个 GPU（如果只有一个 GPU，则设置为 True0）
 gpu_num = 0
 
 # 具有相同设置但不同随机种子的运行次数（如果适用）
@@ -53,9 +53,9 @@ elif task == "mnist":
     # model_name = "CNN6_v2"
 
 # 数据集截断
-ntest = 1000 # number of images in inference simlation
-ntest_batch = 1000 # how many images to load at a time in one contiguous block (for ImageNet, should be <=5000)
-nstart = 0 # index of starting image
+ntest = 1000 # 推理模拟中的图像数量
+ntest_batch = 1000 # 一次在一个连续块中加载多少张图像（对于 ImageNet，应该 <=5000）
+nstart = 0 # 起始图像索引
 
 # 随机抽样： 
 # 如果为 True，则将从完整数据集中随机选择 ntest 图像

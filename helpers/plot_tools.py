@@ -5,45 +5,45 @@
 # See LICENSE for full license details
 #
 
-# plot_tools module
-# Steve Plimpton, Sandia National Labs, sjplimp@sandia.gov
-# refomatted for python3
-# usage:
+#plot_tools模块
+# Steve Plimpton，桑迪亚国家实验室，sjplimp@sandia.gov
+# 针对 python3 重新格式化
+# 用法：
 #   import plot_tools as PT
 #   p = PT.Plot()
 
-# collection of classes and functions for
-#   extracting data from files, creating plots
+# 类和函数的集合
+# 从文件中提取数据，创建绘图
 
-# classes:
-#   Extract = extract info from log files into data file
-#   Plot = wrapper on matplotlib
+# 类：
+# Extract = 将日志文件中的信息提取到数据文件中
+# Plot = matplotlib 上的包装器
 
-# functions:
-#   extract_column = extract column of values from table in file
+# 功能：
+# extract_column = 从文件中的表中提取值列
 
-# support modules
+# 支持模块
 
 import sys,os,shutil,glob,re,time,subprocess,types,string
 
 BIG = 1.0e20
 
 # ----------------------------------------------------------------------
-# helper functions, called by other methods in this file
+# 辅助函数，由该文件中的其他方法调用
 # ----------------------------------------------------------------------
 
-# print error string and quit
+# 打印错误字符串并退出
 
 def error(txt):
   print("ERROR:",txt)
   sys.exit()
 
 # ----------------------------------------------------------------------
-# classes
+# 类
 # ----------------------------------------------------------------------
 
-# Extract tool
-# extract data from files, organize, write to new files for post-analysis
+# 提取工具
+# 从文件中提取数据，组织，写入新文件以进行后期分析
 
 class Extract:
   def __init__(self):
@@ -55,11 +55,11 @@ class Extract:
     self.ops = []                # list of operations on file to populate table
                                  # see op_add()
 
-  # invoke - not documented, not sure how used
-  # expand filenames in dir via glob, so can use wildcards
-  # search each file for matching string via grep and print results
-  # if field is 0, print entire matching line
-  # if files is not 0, print only that field from matching line
+  # 调用 - 未记录，不确定如何使用
+  # 通过 glob 扩展 dir 中的文件名，因此可以使用通配符
+  # 通过 grep 搜索每个文件中的匹配字符串并打印结果
+  # 如果字段为 0，则打印整个匹配行
+  # 如果 files 不为 0，则仅打印匹配行中的该字段
 
   def grep(self,field=0):
     if not self.files: error("Extract tool invoke: no files")
@@ -83,8 +83,8 @@ class Extract:
         if not self.otherfiles: print("%s: %s" % (file,words[field-1]))
         else: print("%s: %s %s" % (file,words[field-1],owords[field-1]))
 
-  # grep a file for regex pattern
-  # return list of matching lines
+  # grep 正则表达式模式的文件
+  # 返回匹配行的列表
   
   def grep(self,file,pattern):
     if not os.path.isfile(file): error("Extract tool grep: no file")
@@ -94,7 +94,7 @@ class Extract:
       if re.search(pattern,line): matchlines.append(line)
     return matchlines
 
-  # create a new Nrow by Ncol table, initialize with zeroes
+  # 创建一个新的 Nrow by Ncol 表，用零初始化
   
   def table_create(self,nrow,ncol):
     self.nrow = nrow
@@ -103,11 +103,11 @@ class Extract:
     for i in range(nrow):
       self.table.append(ncol*[0])
 
-  # set element, or entire row or column, or entire table with value
-  # row,col > 0 -> one element, indices are 1 to N,M, value = scalar
-  # row > 0, col = 0 -> one row, row index is 1 to N, value = list
-  # row = 0, col > 0 -> one col, col index is 1 to M, value = list
-  # row,col = 0 -> entire table, value = scalar
+  # 设置元素、整行或整列、或整个表的值
+  # row,col > 0 -> 一个元素，索引为 1 到 N,M，值 = 标量
+  # row > 0, col = 0 -> 一行，行索引为 1 到 N，值 = 列表
+  # row = 0, col > 0 -> 1 col, col 索引为 1 到 M, 值 = 列表
+  # row,col = 0 -> 整个表，值 = 标量
   
   def table_set(self,row=0,col=0,value=None):
     if value == None: error("Extract tool table_set: requires value")
